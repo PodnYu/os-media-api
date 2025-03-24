@@ -1,0 +1,25 @@
+{
+	"name": "test-case",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"build": "tsc",
+		"start": "npm run build && node ./dist/main"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@eslint/js": "^9.23.0",
+		"@types/node": "^22.13.11",
+		"eslint": "^9.23.0",
+		"globals": "^16.0.0",
+		"typescript": "^5.8.2",
+		"typescript-eslint": "^8.27.0"
+	},
+	"dependencies": {
+		"@aws-sdk/client-s3": "^3.772.0",
+		"@aws-sdk/lib-storage": "^3.772.0"
+	}
+}
