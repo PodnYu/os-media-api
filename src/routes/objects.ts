@@ -35,5 +35,30 @@ export const objectsRouter: Router = {
 			method: 'DELETE',
 			middleware: [validateObjectId],
 		},
+		{
+			path: 'multipart/start/:id',
+			handler: objectsController.startMultiPartUpload.bind(objectsController),
+			method: 'POST',
+			middleware: [],
+		},
+		{
+			path: 'multipart/upload/:id',
+			handler: objectsController.uploadPart.bind(objectsController),
+			method: 'POST',
+			middleware: [validateObjectId],
+		},
+		{
+			path: 'multipart/complete/:id',
+			handler:
+				objectsController.completeMultiPartUpload.bind(objectsController),
+			method: 'POST',
+			middleware: [],
+		},
+		{
+			path: 'multipart/abort/:id',
+			handler: objectsController.abortMultiPartUpload.bind(objectsController),
+			method: 'POST',
+			middleware: [validateObjectId],
+		},
 	],
 };

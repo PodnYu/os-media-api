@@ -1,8 +1,12 @@
 import Stream, { Readable } from 'stream';
 import {
+	AbortMultipartUploadCommand,
+	CompleteMultipartUploadCommand,
+	CreateMultipartUploadCommand,
 	DeleteObjectCommand,
 	GetObjectCommand,
 	S3Client,
+	UploadPartCommand,
 } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 
@@ -44,6 +48,64 @@ export class ObjectsService {
 	async deleteById(id: string) {
 		await this.s3Client.send(
 			new DeleteObjectCommand({ Bucket: this.bucketName, Key: id })
+		);
+	}
+
+	async startMultiPartUpload(key: string) {
+		const r = await this.s3Client.send(
+			new CreateMultipartUploadCommand({ Bucket: this.bucketName, Key: key })
+		);
+
+		return { uploadId: r.UploadId! };
+	}
+
+	async uploadPart(
+		key: string,
+		{
+			uploadId,
+			partNumber,
+			body,
+		}: { uploadId: string; partNumber: number; body: Buffer }
+	) {
+		const r = await this.s3Client.send(
+			new UploadPartCommand({
+				Bucket: this.bucketName,
+				Key: key,
+				UploadId: uploadId,
+				PartNumber: partNumber,
+				Body: body,
+			})
+		);
+
+		return { eTag: r.ETag! };
+	}
+
+	async completeMultiPartUpload(
+		key: string,
+		{
+			uploadId,
+			parts,
+		}: { uploadId: string; parts: { eTag: string; partNumber: number }[] }
+	) {
+		await this.s3Client.send(
+			new CompleteMultipartUploadCommand({
+				Bucket: this.bucketName,
+				Key: key,
+				UploadId: uploadId,
+				MultipartUpload: {
+					Parts: parts.map((p) => ({ ETag: p.eTag, PartNumber: p.partNumber })),
+				},
+			})
+		);
+	}
+
+	async abortMultiPartUpload(key: string, { uploadId }: { uploadId: string }) {
+		await this.s3Client.send(
+			new AbortMultipartUploadCommand({
+				Key: key,
+				Bucket: this.bucketName,
+				UploadId: uploadId,
+			})
 		);
 	}
 }
